@@ -171,6 +171,6 @@ int main()
         cout << endl;
         List[i].GetInfo();
     }
-
+    std::cout << "υσι";
     return 0;
 }
