@@ -16,9 +16,18 @@ enum SymbolType {
 SymbolType DefineSymbol(char& symbol);
 
 enum TokenType {
-    Var,       // a
+    Var = 1,   // a
     Const,     // k
-    Id,        // ReservedWord
+    If,
+    Then,
+    Else,
+    While,
+    Do,
+    In,
+    Out,
+    End,
+    Begin,
+    Mass,
     Plus,      //+
     Minus,     // -
     Div,       // /
@@ -28,8 +37,8 @@ enum TokenType {
     RRb,       // )
     LSb,       // [
     RSb,       // ]
-    Greater,   // >
     Less,      // <
+    Greater,   // >
     Equal,     // ==
     NotEqual,  // !=
     Semicolon, // ;
@@ -44,8 +53,9 @@ class Token {
     int position;
 public:
     static map <string, TokenType> OperationType;
-    static vector <string> ReservedWord;
     Token(string& token, int& position);
+    [[nodiscard]] const string &getToken() const;
+    [[nodiscard]] TokenType getType() const;
     void GetInfo();
     bool DefineToken(SymbolType& symbol_type);
     bool DefineOperationType();

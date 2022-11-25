@@ -13,6 +13,16 @@ Token :: Token(string& token, int& position){
     this->type = Empty;
 }
 map <string, TokenType> Token :: OperationType{
+        {"if", If},
+        {"then", Then},
+        {"else", Else},
+        {"while", While},
+        {"do", Do},
+        {"in", In},
+        {"out", Out},
+        {"end", End},
+        {"begin", Begin},
+        {"mass", Mass},
         {"+", Plus},
         {"-", Minus},
         {"/", Div},
@@ -30,19 +40,18 @@ map <string, TokenType> Token :: OperationType{
         {"{", LCb},
         {"}", RCb}
 };
-vector <string> Token:: ReservedWord = {
-        "begin",
-        "end",
-        "mass",
-        "if",
-        "then",
-        "else",
-        "while",
-        "do",
-        "in",
-        "out"
-};
-void Token :: GetInfo() { cout << " token: " << token << " type: " << type; }
+
+const string &Token::getToken() const {
+    return token;
+}
+
+TokenType Token::getType() const {
+    return type;
+}
+
+void Token :: GetInfo() {
+    cout << " token: " << token << " type: " << type;
+}
 
 bool Token :: DefineToken(SymbolType& symbol_type) {
     switch (symbol_type) {
@@ -60,11 +69,10 @@ bool Token :: DefineOperationType() {
     return false;
 }
 void Token :: DefineLetterType() {
-    for (auto & i : ReservedWord)
-        if (token == i) {
-            type = Id;
-            return;
-        }
+    if (OperationType.find(token) != OperationType.end()) {
+        type = OperationType[token];
+        return;
+    }
     type = Var;
 }
 
