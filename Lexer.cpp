@@ -50,7 +50,7 @@ TokenType Token::getType() const {
 }
 
 void Token :: GetInfo() {
-    cout << " token: " << token << " type: " << type;
+    cout << " token: " << token << " type: " << type << endl;
 }
 
 bool Token :: DefineToken(SymbolType& symbol_type) {
