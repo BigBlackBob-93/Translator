@@ -22,7 +22,7 @@ int main()
 
     Polish_string str;
     str.Generate_PS(List);
-    str.GetPolish_string();
+    str.GetInfoPolish_string();
 
     return 0;
 }

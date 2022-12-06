@@ -45,9 +45,11 @@ class Polish_string{
     vector<Token> Input_string;
     vector<PS_Element> Polish_string;
     int k; //счётчик генерируемых элементов ОПС
+    int label_name;
 public:
     void Generate_PS(vector<Token>List);
-    void GetPolish_string();
+    void GetInfoPolish_string();
+    vector<PS_Element> GetPolish_string();
     static map <string, int> Var_Map;
     static map <string, int> Label_Map;
     static map <string, int*> Mass_Map;

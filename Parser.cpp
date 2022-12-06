@@ -5,17 +5,17 @@
 int Prior ( int AnotherElemType ){
     switch (AnotherElemType)
     {
-    case Ass: case Less: case Greater: case Equal: case NotEqual:
+    case Ass:
         {
             return 1;
         }
 
-        case LRb:
+        case LRb: case LSb:
         {
             return 2;
         }
 
-        case Plus: case Minus:
+        case Plus: case Minus: case Less: case Greater: case Equal: case NotEqual:
         {
             return 3;
         }
@@ -144,14 +144,18 @@ void PS_Element::GetPSInfo()
     cout << Element << " " << PS_Element::Translate_PS_Type(PS_Element::GetPS_Element_Type()) << endl;
 }
 
-void Polish_string::GetPolish_string()
+void Polish_string::GetInfoPolish_string()
 {
     cout<< "Polska strochka:"<< endl;
     for(int i = 0; i<Polish_string.size(); i++)
     {
         Polish_string[i].GetPSInfo();
     }
+}
 
+vector<PS_Element> Polish_string::GetPolish_string()
+{
+    return Polish_string;
 }
 
 map <string, int> Polish_string::Var_Map
@@ -166,18 +170,22 @@ void Polish_string::Generate_PS(vector<Token> List)
     Input_string = List;
     vector<Token>Stack;
     int* null;
-    int check = 0;
     k = 0;
+    label_name = 0;
+    map <string, int> :: reverse_iterator it;
     for (int i=0; i<Input_string.size(); i++)
     {
-        k++;
         switch(Input_string[i].getType())
         {
             case Semicolon:
             {
                 while(Stack.size()!=0)
                 {
-                    Polish_string.push_back(Stack.back());
+                    if (Stack.back().getType() != Else)
+                    {
+                        k++;
+                        Polish_string.push_back(Stack.back());
+                    }
                     Stack.pop_back();
                 }
                 break;
@@ -186,12 +194,14 @@ void Polish_string::Generate_PS(vector<Token> List)
             {
                 while(Stack.back().getType()!= LSb)
                 {
+                    k++;
                     Polish_string.push_back(Stack.back());
                     Stack.pop_back();
                 }
                 Stack.pop_back();
                 if(Stack.back().getType()!= Mass)
                 {
+                    k++;
                     Polish_string.push_back(PS_Element("I", PS_Type::I));
                 }
                 break;
@@ -200,7 +210,27 @@ void Polish_string::Generate_PS(vector<Token> List)
             {
                 while(Stack.back().getType()!= LRb)
                 {
+                    k++;
                     Polish_string.push_back(Stack.back());
+                    Stack.pop_back();
+                }
+                Stack.pop_back();
+                break;
+            }
+            case RCb:
+            {
+                if (Stack.back().getType() != Else)
+                {
+                    it = Label_Map.rbegin();
+                    it->second = k+2;
+                }
+                while(Stack.back().getType()!= LCb)
+                {
+                    if (Stack.back().getType() != Else)
+                    {
+                        k++;
+                        Polish_string.push_back(Stack.back());
+                    }
                     Stack.pop_back();
                 }
                 Stack.pop_back();
@@ -208,10 +238,7 @@ void Polish_string::Generate_PS(vector<Token> List)
             }
             case Var:
             {
-                //if (check != 0)
-                //{
-                    //Label_Map.
-                //}
+                k++;
                 Polish_string.push_back(Input_string[i]);
                 if (!Stack.empty())
                 {
@@ -221,8 +248,9 @@ void Polish_string::Generate_PS(vector<Token> List)
                         {
                             Mass_Map.insert(make_pair(Input_string[i].getToken(), null));
                         }
+                        break;
                     }
-                    break;
+
                 }
                 if (Var_Map.find(Input_string[i].getToken()) == Var_Map.end())
                 {
@@ -232,6 +260,7 @@ void Polish_string::Generate_PS(vector<Token> List)
             }
             case Const:
             {
+                k++;
                 Polish_string.push_back(Input_string[i]);
                 break;
             }
@@ -245,17 +274,36 @@ void Polish_string::Generate_PS(vector<Token> List)
                 Stack.push_back(Input_string[i]);
                 break;
             }
-            case If:
+            case LCb:
             {
                 Stack.push_back(Input_string[i]);
                 break;
             }
+            case If:
+            {
+                break;
+            }
             case Then:
             {
-                Polish_string.push_back(PS_Element("\"m\"+ to_string(i)", PS_Type::Label));
-                Label_Map.insert(make_pair("m"+ to_string(i), k));
+                k++;
+                label_name++;
+                Polish_string.push_back(PS_Element("m"+ to_string(label_name ), PS_Type::Label));
+                Label_Map.insert(make_pair("m"+ to_string(label_name), 0));
+                k++;
                 Polish_string.push_back(PS_Element("f", PS_Type::F));
-                check++;
+                break;
+            }
+            case Else:
+            {
+                Stack.push_back(Input_string[i]);
+                it = Label_Map.rbegin();
+                it->second = k+3;
+                k++;
+                label_name++;
+                Polish_string.push_back(PS_Element("m"+ to_string(label_name), PS_Type::Label));
+                Label_Map.insert(make_pair("m"+ to_string(label_name), 0));
+                k++;
+                Polish_string.push_back(PS_Element("t", PS_Type::T));
                 break;
             }
             case Mass:
@@ -267,6 +315,7 @@ void Polish_string::Generate_PS(vector<Token> List)
             {
                 while(Stack.size()!=0 && Prior(Stack.back().getType()) >= Prior(Input_string[i].getType()))
                 {
+                    k++;
                     Polish_string.push_back(Stack.back());
                     Stack.pop_back();
                 }
@@ -278,6 +327,7 @@ void Polish_string::Generate_PS(vector<Token> List)
 
     while(Stack.size()!=0)
     {
+        k++;
         Polish_string.push_back(Stack.back());
         Stack.pop_back();
     }
