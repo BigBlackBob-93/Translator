@@ -1,335 +1,766 @@
 #include "Parser.h"
+#include <stdexcept>
+using namespace std;
 
-//======= Функция реализации приоритета операций =========
-
-int Prior ( int AnotherElemType ){
-    switch (AnotherElemType)
+void Parser::Next_State()
+{
+    switch (current_state)
     {
-    case Ass:
+        case State::A:
         {
-            return 1;
-        }
+            switch (current_lexeme.getType())
+            {
+                case TokenType::Begin:
+                {
+                    Automate_Stack.emplace(State::S);
+                    Automate_Stack.emplace(State::M);
+                    Automate_Stack.emplace(TokenType::Begin);
 
-        case LRb: case LSb:
-        {
-            return 2;
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    break;
+                }
+                default:
+                {
+                    string message = "Parser error, position: "; //+ to_string(current_lexeme.getPosition());
+                    throw runtime_error(message);
+                }
+            }
+            break;
         }
-
-        case Plus: case Minus: case Less: case Greater: case Equal: case NotEqual:
+        case State::M:
         {
-            return 3;
+            switch (current_lexeme.getType())
+            {
+                case TokenType::Mass:
+                {
+                    Automate_Stack.emplace(State::M);
+                    Automate_Stack.emplace(TokenType::Semicolon);
+                    Automate_Stack.emplace(TokenType::RSb);
+                    Automate_Stack.emplace(TokenType::Const);
+                    Automate_Stack.emplace(TokenType::LSb);
+                    Automate_Stack.emplace(TokenType::Var);
+                    Automate_Stack.emplace(TokenType::Mass);
+
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Mass);
+                    Automate_Generator.emplace(Generator_program::Program9);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Program8);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Program7);
+                }
+                default:
+                {
+                    break;
+                }
+            }
+            break;
         }
-
-        case Div: case Mul:
+        case State::S:
         {
-            return 4;
+            switch (current_lexeme.getType())
+            {
+                case TokenType::Var:
+                {
+                    Automate_Stack.emplace(State::B);
+                    Automate_Stack.emplace(TokenType::Semicolon);
+                    Automate_Stack.emplace(State::Q);
+                    Automate_Stack.emplace(TokenType::Ass);
+                    Automate_Stack.emplace(State::H);
+                    Automate_Stack.emplace(TokenType::Var);
+
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Ass);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Var);
+                    Automate_Generator.emplace(Generator_program::Program10);
+                    Automate_Generator.emplace(Generator_program::Program6);
+
+                    break;
+                }
+                default:
+                {
+                    string message = "Parser error, position: "; //+ to_string(current_lexeme.getPosition());
+                    throw runtime_error(message);
+                }
+            }
+            break;
+        }
+        case State::Q:
+        {
+            switch (current_lexeme.getType())
+            {
+                case TokenType::LRb:
+                {
+                    Automate_Stack.emplace(State::T_tilda);
+                    Automate_Stack.emplace(State::F_tilda);
+                    Automate_Stack.emplace(TokenType::RRb);
+                    Automate_Stack.emplace(State::Q);
+                    Automate_Stack.emplace(TokenType::LRb);
+
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    break;
+                }
+                case TokenType::Var:
+                {
+                    Automate_Stack.emplace(State::T_tilda);
+                    Automate_Stack.emplace(State::F_tilda);
+                    Automate_Stack.emplace(State::H);
+                    Automate_Stack.emplace(TokenType::Var);
+
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Var);
+                    break;
+                }
+                case TokenType::Const:
+                {
+                    Automate_Stack.emplace(State::T_tilda);
+                    Automate_Stack.emplace(State::F_tilda);
+                    Automate_Stack.emplace(TokenType::Const);
+
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Const);
+                    break;
+                }
+                case TokenType::In:
+                {
+                    Automate_Stack.emplace(State::T_tilda);
+                    Automate_Stack.emplace(State::F_tilda);
+                    Automate_Stack.emplace(TokenType::RRb);
+                    Automate_Stack.emplace(State::H);
+                    Automate_Stack.emplace(TokenType::Var);
+                    Automate_Stack.emplace(TokenType::LRb);
+                    Automate_Stack.emplace(TokenType::In);
+
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::In);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Var);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    break;
+                }
+                default:
+                {
+                    string message = "Parser error, position: "; //+ to_string(current_lexeme.getPosition());
+                    throw runtime_error(message);
+                }
+            }
+            break;
+        }
+        case State::T_tilda:
+        {
+            switch (current_lexeme.getType())
+            {
+                case TokenType::Plus:
+                {
+                    Automate_Stack.emplace(State::T_tilda);
+                    Automate_Stack.emplace(State::T);
+                    Automate_Stack.emplace(TokenType::Plus);
+
+                    Automate_Generator.emplace(Generator_program::Plus);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    break;
+                }
+                case TokenType::Minus:
+                {
+                    Automate_Stack.emplace(State::T_tilda);
+                    Automate_Stack.emplace(State::T);
+                    Automate_Stack.emplace(TokenType::Minus);
+
+                    Automate_Generator.emplace(Generator_program::Minus);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+            }
+            break;
+        }
+        case State::T:
+        {
+            switch (current_lexeme.getType())
+            {
+                case TokenType::LRb:
+                {
+                    Automate_Stack.emplace(State::F_tilda);
+                    Automate_Stack.emplace(TokenType::RRb);
+                    Automate_Stack.emplace(State::Q);
+                    Automate_Stack.emplace(TokenType::LRb);
+
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    break;
+                }
+                case TokenType::Var:
+                {
+                    Automate_Stack.emplace(State::F_tilda);
+                    Automate_Stack.emplace(State::H);
+                    Automate_Stack.emplace(TokenType::Var);
+
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Var);
+                    break;
+                }
+                case TokenType::Const:
+                {
+                    Automate_Stack.emplace(State::F_tilda);
+                    Automate_Stack.emplace(TokenType::Const);
+
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Const);
+                    break;
+                }
+                case TokenType::In:
+                {
+                    Automate_Stack.emplace(State::F_tilda);
+                    Automate_Stack.emplace(TokenType::RRb);
+                    Automate_Stack.emplace(State::H);
+                    Automate_Stack.emplace(TokenType::Var);
+                    Automate_Stack.emplace(TokenType::LRb);
+                    Automate_Stack.emplace(TokenType::In);
+
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::In);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Var);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    break;
+                }
+                default:
+                {
+                    string message = "Parser error, position: "; //+ to_string(current_lexeme.getPosition());
+                    throw runtime_error(message);
+                }
+            }
+            break;
+        }
+        case State::F_tilda:
+        {
+            switch (current_lexeme.getType())
+            {
+                case TokenType::Mul:
+                {
+                    Automate_Stack.emplace(State::F_tilda);
+                    Automate_Stack.emplace(State::F);
+                    Automate_Stack.emplace(TokenType::Mul);
+
+                    Automate_Generator.emplace(Generator_program::Mul);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    break;
+                }
+                case TokenType::Div:
+                {
+                    Automate_Stack.emplace(State::F_tilda);
+                    Automate_Stack.emplace(State::F);
+                    Automate_Stack.emplace(TokenType::Div);
+
+                    Automate_Generator.emplace(Generator_program::Div);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+            }
+            break;
+        }
+        case State::F:
+        {
+            switch(current_lexeme.getType())
+            {
+                case TokenType::LRb:
+                {
+                    Automate_Stack.emplace(TokenType::RRb);
+                    Automate_Stack.emplace(State::Q);
+                    Automate_Stack.emplace(TokenType::LRb);
+
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    break;
+                }
+                case TokenType::Var:
+                {
+                    Automate_Stack.emplace(State::H);
+                    Automate_Stack.emplace(TokenType::Var);
+
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Var);
+                    break;
+                }
+                case TokenType::Const:
+                {
+                    Automate_Stack.emplace(TokenType::Var);
+
+                    Automate_Generator.emplace(Generator_program::Const);
+                    break;
+                }
+                case TokenType::In:
+                {
+                    Automate_Stack.emplace(TokenType::RRb);
+                    Automate_Stack.emplace(State::H);
+                    Automate_Stack.emplace(TokenType::Var);
+                    Automate_Stack.emplace(TokenType::LRb);
+                    Automate_Stack.emplace(TokenType::In);
+
+                    Automate_Generator.emplace(Generator_program::In);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Var);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    break;
+                }
+                default:
+                {
+                    string message = "Parser error, position: "; //+ to_string(current_lexeme.getPosition());
+                    throw runtime_error(message);
+                }
+            }
+            break;
+        }
+        case State::H:
+        {
+            switch(current_lexeme.getType())
+            {
+                case TokenType::LSb:
+                {
+                    Automate_Stack.emplace(TokenType::RSb);
+                    Automate_Stack.emplace(State::Q);
+                    Automate_Stack.emplace(TokenType::LSb);
+
+                    Automate_Generator.emplace(Generator_program::I);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+            }
+            break;
+        }
+        case State::B:
+        {
+            switch(current_lexeme.getType())
+            {
+                case TokenType::Mass:
+                {
+                    Automate_Stack.emplace(State::B);
+                    Automate_Stack.emplace(TokenType::Semicolon);
+                    Automate_Stack.emplace(TokenType::RSb);
+                    Automate_Stack.emplace(TokenType::Const);
+                    Automate_Stack.emplace(TokenType::LSb);
+                    Automate_Stack.emplace(TokenType::Var);
+                    Automate_Stack.emplace(TokenType::Mass);
+
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Mass);
+                    Automate_Generator.emplace(Generator_program::Program9);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Program8);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Program7);
+                    break;
+                }
+                case TokenType::Var:
+                {
+                    Automate_Stack.emplace(State::B);
+                    Automate_Stack.emplace(TokenType::Semicolon);
+                    Automate_Stack.emplace(State::Q);
+                    Automate_Stack.emplace(TokenType::Ass);
+                    Automate_Stack.emplace(State::H);
+                    Automate_Stack.emplace(TokenType::Var);
+
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Ass);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Var);
+                    Automate_Generator.emplace(Generator_program::Program10);
+                    Automate_Generator.emplace(Generator_program::Program6);
+                    break;
+                }
+                case TokenType::If:
+                {
+                    Automate_Stack.emplace(State::B);
+                    Automate_Stack.emplace(State::E);
+                    Automate_Stack.emplace(TokenType::RCb);
+                    Automate_Stack.emplace(State::B);
+                    Automate_Stack.emplace(State::S);
+                    Automate_Stack.emplace(TokenType::LCb);
+                    Automate_Stack.emplace(TokenType::Then);
+                    Automate_Stack.emplace(TokenType::RRb);
+                    Automate_Stack.emplace(State::C);
+                    Automate_Stack.emplace(TokenType::LRb);
+                    Automate_Stack.emplace(TokenType::If);
+
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Program3);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Program1);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    break;
+                }
+                case TokenType::While:
+                {
+                    Automate_Stack.emplace(State::B);
+                    Automate_Stack.emplace(TokenType::RCb);
+                    Automate_Stack.emplace(State::B);
+                    Automate_Stack.emplace(State::S);
+                    Automate_Stack.emplace(TokenType::LCb);
+                    Automate_Stack.emplace(TokenType::Do);
+                    Automate_Stack.emplace(TokenType::RRb);
+                    Automate_Stack.emplace(State::C);
+                    Automate_Stack.emplace(TokenType::LRb);
+                    Automate_Stack.emplace(TokenType::While);
+
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Program5);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Program1);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Program4);
+                    break;
+                }
+                case TokenType::Out:
+                {
+                    Automate_Stack.emplace(State::B);
+                    Automate_Stack.emplace(TokenType::Semicolon);
+                    Automate_Stack.emplace(TokenType::RRb);
+                    Automate_Stack.emplace(State::H);
+                    Automate_Stack.emplace(TokenType::Var);
+                    Automate_Stack.emplace(TokenType::LRb);
+                    Automate_Stack.emplace(TokenType::Out);
+
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Out);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Var);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+            }
+            break;
+        }
+        case State::E:
+        {
+            switch (current_lexeme.getType())
+            {
+                case TokenType::Else:
+                {
+                    Automate_Stack.emplace(TokenType::RCb);
+                    Automate_Stack.emplace(State::S);
+                    Automate_Stack.emplace(TokenType::LCb);
+                    Automate_Stack.emplace(TokenType::Else);
+
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Program2);
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+            }
+            break;
+        }
+        case State::C:
+        {
+            switch (current_lexeme.getType())
+            {
+                case TokenType::Var:
+                {
+                    Automate_Stack.emplace(State::G);
+                    Automate_Stack.emplace(State::H);
+                    Automate_Stack.emplace(TokenType::Var);
+
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Var);
+                    break;
+                }
+                default:
+                {
+                    string message = "Parser error, position: "; //+ to_string(current_lexeme.getPosition());
+                    throw runtime_error(message);
+                }
+            }
+            break;
+        }
+        case State::G:
+        {
+            switch (current_lexeme.getType())
+            {
+                case TokenType::Less:
+                {
+                    Automate_Stack.emplace(State::Q);
+                    Automate_Stack.emplace(TokenType::Less);
+
+                    Automate_Generator.emplace(Generator_program::Less);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    break;
+                }
+                case TokenType::Greater:
+                {
+                    Automate_Stack.emplace(State::Q);
+                    Automate_Stack.emplace(TokenType::Greater);
+
+                    Automate_Generator.emplace(Generator_program::Greater);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    break;
+                }
+                case TokenType::Equal:
+                {
+                    Automate_Stack.emplace(State::Q);
+                    Automate_Stack.emplace(TokenType::Equal);
+
+                    Automate_Generator.emplace(Generator_program::Equal);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    break;
+                }
+                case TokenType::NotEqual:
+                {
+                    Automate_Stack.emplace(State::Q);
+                    Automate_Stack.emplace(TokenType::NotEqual);
+
+                    Automate_Generator.emplace(Generator_program::NotEqual);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    break;
+                }
+                default:
+                {
+                    string message = "Parser error, position: "; //+ to_string(current_lexeme.getPosition());
+                    throw runtime_error(message);
+                }
+            }
+            break;
+        }
+        case State::Empty:
+        {
+            default:
+                string message = "Parser error, position: "; //+ to_string(current_lexeme.getPosition());
+                throw runtime_error(message);
         }
     }
-    return 0;
 }
 
-map <PS_Type, string> PS_Element :: OperationPSType
+void Parser::Run_Generator_program()
 {
-        {PS_Type::Var, "var"},
-        {PS_Type::Const, "const"},
-        {PS_Type::In, "in"},
-        {PS_Type::Out, "out"},
-        {PS_Type::Mass, "mass"},
-        {PS_Type::Plus, "+"},
-        {PS_Type::Minus, "-"},
-        {PS_Type::Div, "/"},
-        {PS_Type::Mul, "*"},
-        {PS_Type::Ass, "="},
-        {PS_Type::Greater, ">"},
-        {PS_Type::Less, "<"},
-        {PS_Type::Equal, "=="},
-        {PS_Type::NotEqual, "!="},
-        {PS_Type::Label, "label"},
-        {PS_Type::T, "unconditional transition"},
-        {PS_Type::F, "conditional transition"},
-        {PS_Type::I, "indexing"}
-
-};
-
-
-PS_Element::PS_Element(Token token)
-{
-    Token in_token = token;
-    Element = token.getToken();
-    switch(token.getType()) {
-        case Var: {
-            Element_Type = PS_Type::Var;
-            break;
-        }
-        case Const: {
-            Element_Type = PS_Type::Const;
-            break;
-        }
-        case In: {
-            Element_Type = PS_Type::In;
-            break;
-        }
-        case Out: {
-            Element_Type = PS_Type::Out;
-            break;
-        }
-        case Mass: {
-            Element_Type = PS_Type::Mass;
-            break;
-        }
-        case Plus: {
-            Element_Type = PS_Type::Plus;
-            break;
-        }
-        case Minus: {
-            Element_Type = PS_Type::Minus;
-            break;
-        }
-        case Div: {
-            Element_Type = PS_Type::Div;
-            break;
-        }
-        case Mul: {
-            Element_Type = PS_Type::Mul;
-            break;
-        }
-        case Ass: {
-            Element_Type = PS_Type::Ass;
-            break;
-        }
-        case Less: {
-            Element_Type = PS_Type::Less;
-            break;
-        }
-        case Greater: {
-            Element_Type = PS_Type::Greater;
-            break;
-        }
-        case Equal: {
-            Element_Type = PS_Type::Equal;
-            break;
-        }
-        case NotEqual: {
-            Element_Type = PS_Type::NotEqual;
-            break;
-        }
-        case Empty: {
-            Element_Type = PS_Type::Empty;
-            break;
-        }
-    }
-}
-PS_Element::PS_Element(string element, PS_Type element_type)
-{
-    Element = element;
-    Element_Type = element_type;
-}
-const string &PS_Element::GetPS_Element() const
-{
-    return Element;
-}
-
-PS_Type PS_Element::GetPS_Element_Type() const
-{
-    return Element_Type;
-}
-
-string PS_Element::Translate_PS_Type(PS_Type elem)
-{
-    return OperationPSType[elem];
-}
-
-void PS_Element::GetPSInfo()
-{
-    cout << Element << " " << PS_Element::Translate_PS_Type(PS_Element::GetPS_Element_Type()) << endl;
-}
-
-void Polish_string::GetInfoPolish_string()
-{
-    cout<< "Polska strochka:"<< endl;
-    for(int i = 0; i<Polish_string.size(); i++)
+    switch (current_program)
     {
-        Polish_string[i].GetPSInfo();
-    }
-}
-
-vector<PS_Element> Polish_string::GetPolish_string()
-{
-    return Polish_string;
-}
-
-map <string, int> Polish_string::Var_Map
-{};
-map <string, int*> Polish_string::Mass_Map
-{};
-map <string, int> Polish_string::Label_Map
-{};
-
-void Polish_string::Generate_PS(vector<Token> List)
-{
-    Input_string = List;
-    vector<Token>Stack;
-    int* null;
-    k = 0;
-    label_name = 0;
-    map <string, int> :: reverse_iterator it;
-    for (int i=0; i<Input_string.size(); i++)
-    {
-        switch(Input_string[i].getType())
+        case Generator_program::Empty:
         {
-            case Semicolon:
+            break;
+        }
+        case Generator_program::Var:
+        {
+            data.Polish_String.emplace_back(current_lexeme.getToken(), current_lexeme);
+            break;
+        }
+        case Generator_program::Const:
+        {
+            data.Polish_String.emplace_back(stoi(current_lexeme.getToken()), current_lexeme);
+            break;
+        }
+        case Generator_program::In:
+        {
+            data.Polish_String.emplace_back(PS_Operation::In, current_lexeme);
+            break;
+        }
+        case Generator_program::Out:
+        {
+            data.Polish_String.emplace_back(PS_Operation::Out, current_lexeme);
+            break;
+        }
+        case Generator_program::Mass:
+        {
+            data.Polish_String.emplace_back(PS_Operation::Mass, current_lexeme);
+            break;
+        }
+        case Generator_program::Plus:
+        {
+            data.Polish_String.emplace_back(PS_Operation::Plus, current_lexeme);
+            break;
+        }
+        case Generator_program::Minus:
+        {
+            data.Polish_String.emplace_back(PS_Operation::Minus, current_lexeme);
+            break;
+        }
+        case Generator_program::Div:
+        {
+            data.Polish_String.emplace_back(PS_Operation::Div, current_lexeme);
+            break;
+        }
+        case Generator_program::Mul:
+        {
+            data.Polish_String.emplace_back(PS_Operation::Mul, current_lexeme);
+            break;
+        }
+        case Generator_program::Ass:
+        {
+            data.Polish_String.emplace_back(PS_Operation::Ass, current_lexeme);
+            break;
+        }
+        case Generator_program::Less:
+        {
+            data.Polish_String.emplace_back(PS_Operation::Less, current_lexeme);
+            break;
+        }
+        case Generator_program::Greater:
+        {
+            data.Polish_String.emplace_back(PS_Operation::Greater, current_lexeme);
+            break;
+        }
+        case Generator_program::Equal:
+        {
+            data.Polish_String.emplace_back(PS_Operation::Equal, current_lexeme);
+            break;
+        }
+        case Generator_program::NotEqual:
+        {
+            data.Polish_String.emplace_back(PS_Operation::NotEqual, current_lexeme);
+            break;
+        }
+        case Generator_program::I:
+        {
+            data.Polish_String.emplace_back(PS_Operation::I, current_lexeme);
+            break;
+        }
+        case Generator_program::Program1:
+        {
+            Labels.push(data.Polish_String.size());
+            data.Polish_String.emplace_back(0, current_lexeme);
+            data.Polish_String.emplace_back(PS_Operation::F, current_lexeme);
+            break;
+        }
+        case Generator_program::Program2:
+        {
+            int place = Labels.top();
+            Labels.pop();
+            data.Polish_String.emplace_back(0, current_lexeme);
+            data.Polish_String.emplace_back(PS_Operation::T, current_lexeme);
+            data.Polish_String[place].num = data.Polish_String.size();
+            break;
+        }
+        case Generator_program::Program3:
+        {
+            int place = Labels.top();
+            Labels.pop();
+            data.Polish_String[place].num = data.Polish_String.size();
+            break;
+        }
+        case Generator_program::Program4:
+        {
+            Labels.push(data.Polish_String.size());
+            break;
+        }
+        case Generator_program::Program5:
+        {
+            int place = Labels.top();
+            Labels.pop();
+            data.Polish_String.emplace_back(Labels.top(), current_lexeme);
+            Labels.pop();
+            data.Polish_String.emplace_back(PS_Operation::T, current_lexeme);
+            data.Polish_String[place].num = data.Polish_String.size();
+            break;
+        }
+        case Generator_program::Program6:
+        {
+            current_map = Maps::Var;
+            break;
+        }
+        case Generator_program::Program7:
+        {
+            current_map = Maps::Mass;
+            break;
+        }
+        case Generator_program::Program8:
+        {
+            if(data.Mass_Map.count(current_lexeme.getToken()))
             {
-                while(Stack.size()!=0)
-                {
-                    if (Stack.back().getType() != Else)
-                    {
-                        k++;
-                        Polish_string.push_back(Stack.back());
-                    }
-                    Stack.pop_back();
-                }
-                break;
+                string message = "A Array with the same name already exists, rename the Array, position: "; //+ to_string(current_lexeme.getPosition());
+                throw runtime_error(message);
             }
-            case RSb:
-            {
-                while(Stack.back().getType()!= LSb)
-                {
-                    k++;
-                    Polish_string.push_back(Stack.back());
-                    Stack.pop_back();
-                }
-                Stack.pop_back();
-                if(Stack.back().getType()!= Mass)
-                {
-                    k++;
-                    Polish_string.push_back(PS_Element("I", PS_Type::I));
-                }
-                break;
-            }
-            case RRb:
-            {
-                while(Stack.back().getType()!= LRb)
-                {
-                    k++;
-                    Polish_string.push_back(Stack.back());
-                    Stack.pop_back();
-                }
-                Stack.pop_back();
-                break;
-            }
-            case RCb:
-            {
-                if (Stack.back().getType() != Else)
-                {
-                    it = Label_Map.rbegin();
-                    it->second = k+2;
-                }
-                while(Stack.back().getType()!= LCb)
-                {
-                    if (Stack.back().getType() != Else)
-                    {
-                        k++;
-                        Polish_string.push_back(Stack.back());
-                    }
-                    Stack.pop_back();
-                }
-                Stack.pop_back();
-                break;
-            }
-            case Var:
-            {
-                k++;
-                Polish_string.push_back(Input_string[i]);
-                if (!Stack.empty())
-                {
-                    if (Stack.back().getType() == Mass)
-                    {
-                        if (Mass_Map.find(Input_string[i].getToken()) == Mass_Map.end())
-                        {
-                            Mass_Map.insert(make_pair(Input_string[i].getToken(), null));
-                        }
-                        break;
-                    }
 
-                }
-                if (Var_Map.find(Input_string[i].getToken()) == Var_Map.end())
+            if (current_map == Maps::Mass)
+            {
+                current_var_name = current_lexeme.getToken();
+            }
+            break;
+        }
+        case Generator_program::Program9:
+        {
+            data.Mass_Map.insert({current_var_name, vector<int>(stoi(current_lexeme.getToken()))});
+            break;
+        }
+        case Generator_program::Program10:
+        {
+            if (current_map == Maps::Var)
+            {
+                if (data.Var_Map.count(current_lexeme.getToken()))
                 {
-                    Var_Map.insert(make_pair(Input_string[i].getToken(), -1));
+                    break;
                 }
-                break;
-            }
-            case Const:
-            {
-                k++;
-                Polish_string.push_back(Input_string[i]);
-                break;
-            }
-            case LRb:
-            {
-                Stack.push_back(Input_string[i]);
-                break;
-            }
-            case LSb:
-            {
-                Stack.push_back(Input_string[i]);
-                break;
-            }
-            case LCb:
-            {
-                Stack.push_back(Input_string[i]);
-                break;
-            }
-            case If:
-            {
-                break;
-            }
-            case Then:
-            {
-                k++;
-                label_name++;
-                Polish_string.push_back(PS_Element("m"+ to_string(label_name ), PS_Type::Label));
-                Label_Map.insert(make_pair("m"+ to_string(label_name), 0));
-                k++;
-                Polish_string.push_back(PS_Element("f", PS_Type::F));
-                break;
-            }
-            case Else:
-            {
-                Stack.push_back(Input_string[i]);
-                it = Label_Map.rbegin();
-                it->second = k+3;
-                k++;
-                label_name++;
-                Polish_string.push_back(PS_Element("m"+ to_string(label_name), PS_Type::Label));
-                Label_Map.insert(make_pair("m"+ to_string(label_name), 0));
-                k++;
-                Polish_string.push_back(PS_Element("t", PS_Type::T));
-                break;
-            }
-            case Mass:
-            {
-                Stack.push_back(Input_string[i]);
-                break;
-            }
-            case Plus: case Minus: case Div: case Mul: case  Ass: case Less: case Greater: case Equal: case NotEqual:
-            {
-                while(Stack.size()!=0 && Prior(Stack.back().getType()) >= Prior(Input_string[i].getType()))
+                else
                 {
-                    k++;
-                    Polish_string.push_back(Stack.back());
-                    Stack.pop_back();
+                    data.Var_Map.insert({current_lexeme.getToken(), -1});
                 }
-                Stack.push_back(Input_string[i]);
-                break;
             }
+            break;
+        }
+        default:
+        {
+            string message = "Parser error, position: "; //+ to_string(current_lexeme.getPosition());
+            throw runtime_error(message);
         }
     }
-
-    while(Stack.size()!=0)
-    {
-        k++;
-        Polish_string.push_back(Stack.back());
-        Stack.pop_back();
-    }
 }
 
+void Parser::Run()
+{
+    Automate_Stack.emplace(State::A);
+    Automate_Generator.push(Generator_program::Empty);
+    current_map = Maps::Var;
+    int current_lexeme_index = 0;
+}
