@@ -20,9 +20,9 @@ int main()
     //you can use token methods to get information about it
     // example: List[0].getType(); List[0].getToken();
 
-    Polish_string str;
-    str.Generate_PS(List);
-    str.GetInfoPolish_string();
+    Parser test(List);
+    test.Run();
+
 
     return 0;
 }

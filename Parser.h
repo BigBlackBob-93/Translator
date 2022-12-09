@@ -42,26 +42,24 @@ public:
         PS_Operation PS_Element_Operation = PS_Operation::Empty;
         int position = -1; // for errors
         int num = 0;
-        // int index = 0;
-        // constructors
 
         PS_Element(string name, const Token& T)
         {
             PS_Element_Type = PS_Type::Var;
             PS_Element_Name = name;
-            //position = T.getPosition;
+            position = T.getPosition();
         }
         PS_Element(int con, const Token& T)
         {
             PS_Element_Type = PS_Type::Const;
             num = con;
-            //position = T.getPosition;
+            position = T.getPosition();
         }
         PS_Element(PS_Operation operation, const Token& T)
         {
             PS_Element_Type = PS_Type::Operation;
             PS_Element_Operation = operation;
-            //position = T.getPosition;
+            position = T.getPosition();
         }
     };
 
@@ -87,19 +85,20 @@ private:
 
     enum class State
     {
-        A, // → beginMS
+        A, // → beginMS end
         M, // → mass a[k];M | λ
-        S, // → aH = Q;B
+        S, // → aH = Q;B | λ
         Q, // → (Q)F’T’ | aHF’T’ | kF’T’ | in(aH)F’T’
         T_tilda, // → +TT’ | -TT’ | λ
         T, // → (Q)F’ | aHF’ | kF’ | in(aH)F’
         F_tilda, // → *FF’ | \FF’ | λ
         F, // → (Q) | aH | k | in(aH)
         H, // → [Q] | λ
-        B, // → mass a[k];B | aH = Q;B | if (C) then {SB}EB | while (C) do {SB}B | out(aH);B | λ | end
+        B, // → mass a[k];B | aH = Q;B | if (C) then {SB}EB | while (C) do {SB}B | out(aH);B | λ
         E, // → else {S} | λ
         C, // → aHG
         G, // → < Q | > Q | == Q |  != Q
+        Z, // →  λ
         Empty
     };
 
@@ -136,15 +135,15 @@ private:
     struct Stack_item
     {
         bool Is_terminal;
-        TokenType lexeme;
+        TokenType token;
         State state;
 
-        Stack_item(TokenType lexeme): Is_terminal(true), lexeme(lexeme), state(State::Empty){};
-        Stack_item(State state): Is_terminal(false), lexeme(TokenType::Empty), state(state){};
+        Stack_item(TokenType token): Is_terminal(true), token(token), state(State::Empty){};
+        Stack_item(State state): Is_terminal(false), token(TokenType::Empty), state(state){};
     };
 
     Generator_program current_program;
-    Token current_lexeme;
+    Token current_token;
     State current_state;
     Maps current_map;
     string current_var_name;
@@ -153,6 +152,7 @@ private:
     stack<int> Labels;
     Data data;
 
+    vector<Token> input_data;
 };
 
 

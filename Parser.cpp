@@ -8,10 +8,11 @@ void Parser::Next_State()
     {
         case State::A:
         {
-            switch (current_lexeme.getType())
+            switch (current_token.getType())
             {
                 case TokenType::Begin:
                 {
+                    Automate_Stack.emplace(TokenType::End);
                     Automate_Stack.emplace(State::S);
                     Automate_Stack.emplace(State::M);
                     Automate_Stack.emplace(TokenType::Begin);
@@ -19,11 +20,12 @@ void Parser::Next_State()
                     Automate_Generator.emplace(Generator_program::Empty);
                     Automate_Generator.emplace(Generator_program::Empty);
                     Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
                     break;
                 }
                 default:
                 {
-                    string message = "Parser error, position: "; //+ to_string(current_lexeme.getPosition());
+                    string message = "Parser error, position: " + to_string(current_token.getPosition());
                     throw runtime_error(message);
                 }
             }
@@ -31,7 +33,7 @@ void Parser::Next_State()
         }
         case State::M:
         {
-            switch (current_lexeme.getType())
+            switch (current_token.getType())
             {
                 case TokenType::Mass:
                 {
@@ -43,12 +45,12 @@ void Parser::Next_State()
                     Automate_Stack.emplace(TokenType::Var);
                     Automate_Stack.emplace(TokenType::Mass);
 
-                    Automate_Generator.emplace(Generator_program::Empty);
                     Automate_Generator.emplace(Generator_program::Mass);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
                     Automate_Generator.emplace(Generator_program::Program9);
                     Automate_Generator.emplace(Generator_program::Empty);
                     Automate_Generator.emplace(Generator_program::Program8);
-                    Automate_Generator.emplace(Generator_program::Empty);
                     Automate_Generator.emplace(Generator_program::Program7);
                 }
                 default:
@@ -60,7 +62,7 @@ void Parser::Next_State()
         }
         case State::S:
         {
-            switch (current_lexeme.getType())
+            switch (current_token.getType())
             {
                 case TokenType::Var:
                 {
@@ -74,23 +76,22 @@ void Parser::Next_State()
                     Automate_Generator.emplace(Generator_program::Empty);
                     Automate_Generator.emplace(Generator_program::Ass);
                     Automate_Generator.emplace(Generator_program::Empty);
-                    Automate_Generator.emplace(Generator_program::Var);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
                     Automate_Generator.emplace(Generator_program::Program10);
-                    Automate_Generator.emplace(Generator_program::Program6);
 
                     break;
                 }
                 default:
                 {
-                    string message = "Parser error, position: "; //+ to_string(current_lexeme.getPosition());
-                    throw runtime_error(message);
+                    break;
                 }
             }
             break;
         }
         case State::Q:
         {
-            switch (current_lexeme.getType())
+            switch (current_token.getType())
             {
                 case TokenType::LRb:
                 {
@@ -152,7 +153,7 @@ void Parser::Next_State()
                 }
                 default:
                 {
-                    string message = "Parser error, position: "; //+ to_string(current_lexeme.getPosition());
+                    string message = "Parser error, position: "+ to_string(current_token.getPosition());
                     throw runtime_error(message);
                 }
             }
@@ -160,7 +161,7 @@ void Parser::Next_State()
         }
         case State::T_tilda:
         {
-            switch (current_lexeme.getType())
+            switch (current_token.getType())
             {
                 case TokenType::Plus:
                 {
@@ -193,7 +194,7 @@ void Parser::Next_State()
         }
         case State::T:
         {
-            switch (current_lexeme.getType())
+            switch (current_token.getType())
             {
                 case TokenType::LRb:
                 {
@@ -247,7 +248,7 @@ void Parser::Next_State()
                 }
                 default:
                 {
-                    string message = "Parser error, position: "; //+ to_string(current_lexeme.getPosition());
+                    string message = "Parser error, position: "+ to_string(current_token.getPosition());
                     throw runtime_error(message);
                 }
             }
@@ -255,7 +256,7 @@ void Parser::Next_State()
         }
         case State::F_tilda:
         {
-            switch (current_lexeme.getType())
+            switch (current_token.getType())
             {
                 case TokenType::Mul:
                 {
@@ -288,7 +289,7 @@ void Parser::Next_State()
         }
         case State::F:
         {
-            switch(current_lexeme.getType())
+            switch(current_token.getType())
             {
                 case TokenType::LRb:
                 {
@@ -334,7 +335,7 @@ void Parser::Next_State()
                 }
                 default:
                 {
-                    string message = "Parser error, position: "; //+ to_string(current_lexeme.getPosition());
+                    string message = "Parser error, position: "+ to_string(current_token.getPosition());
                     throw runtime_error(message);
                 }
             }
@@ -342,7 +343,7 @@ void Parser::Next_State()
         }
         case State::H:
         {
-            switch(current_lexeme.getType())
+            switch(current_token.getType())
             {
                 case TokenType::LSb:
                 {
@@ -364,7 +365,7 @@ void Parser::Next_State()
         }
         case State::B:
         {
-            switch(current_lexeme.getType())
+            switch(current_token.getType())
             {
                 case TokenType::Mass:
                 {
@@ -397,9 +398,9 @@ void Parser::Next_State()
                     Automate_Generator.emplace(Generator_program::Empty);
                     Automate_Generator.emplace(Generator_program::Ass);
                     Automate_Generator.emplace(Generator_program::Empty);
-                    Automate_Generator.emplace(Generator_program::Var);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
                     Automate_Generator.emplace(Generator_program::Program10);
-                    Automate_Generator.emplace(Generator_program::Program6);
                     break;
                 }
                 case TokenType::If:
@@ -416,8 +417,8 @@ void Parser::Next_State()
                     Automate_Stack.emplace(TokenType::LRb);
                     Automate_Stack.emplace(TokenType::If);
 
-                    Automate_Generator.emplace(Generator_program::Empty);
                     Automate_Generator.emplace(Generator_program::Program3);
+                    Automate_Generator.emplace(Generator_program::Empty);
                     Automate_Generator.emplace(Generator_program::Empty);
                     Automate_Generator.emplace(Generator_program::Empty);
                     Automate_Generator.emplace(Generator_program::Empty);
@@ -482,7 +483,7 @@ void Parser::Next_State()
         }
         case State::E:
         {
-            switch (current_lexeme.getType())
+            switch (current_token.getType())
             {
                 case TokenType::Else:
                 {
@@ -506,7 +507,7 @@ void Parser::Next_State()
         }
         case State::C:
         {
-            switch (current_lexeme.getType())
+            switch (current_token.getType())
             {
                 case TokenType::Var:
                 {
@@ -521,7 +522,7 @@ void Parser::Next_State()
                 }
                 default:
                 {
-                    string message = "Parser error, position: "; //+ to_string(current_lexeme.getPosition());
+                    string message = "Parser error, position: "+ to_string(current_token.getPosition());
                     throw runtime_error(message);
                 }
             }
@@ -529,56 +530,68 @@ void Parser::Next_State()
         }
         case State::G:
         {
-            switch (current_lexeme.getType())
+            switch (current_token.getType())
             {
                 case TokenType::Less:
                 {
+                    Automate_Stack.emplace(State::Z);
                     Automate_Stack.emplace(State::Q);
                     Automate_Stack.emplace(TokenType::Less);
 
                     Automate_Generator.emplace(Generator_program::Less);
                     Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
                     break;
                 }
                 case TokenType::Greater:
                 {
+                    Automate_Stack.emplace(State::Z);
                     Automate_Stack.emplace(State::Q);
                     Automate_Stack.emplace(TokenType::Greater);
 
                     Automate_Generator.emplace(Generator_program::Greater);
                     Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
                     break;
                 }
                 case TokenType::Equal:
                 {
+                    Automate_Stack.emplace(State::Z);
                     Automate_Stack.emplace(State::Q);
                     Automate_Stack.emplace(TokenType::Equal);
 
                     Automate_Generator.emplace(Generator_program::Equal);
                     Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
                     break;
                 }
                 case TokenType::NotEqual:
                 {
+                    Automate_Stack.emplace(State::Z);
                     Automate_Stack.emplace(State::Q);
                     Automate_Stack.emplace(TokenType::NotEqual);
 
                     Automate_Generator.emplace(Generator_program::NotEqual);
                     Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
                     break;
                 }
                 default:
                 {
-                    string message = "Parser error, position: "; //+ to_string(current_lexeme.getPosition());
+                    string message = "Parser error, position: "+ to_string(current_token.getPosition());
                     throw runtime_error(message);
                 }
             }
             break;
         }
+        case State::Z:
+        {
+            break;
+        }
         case State::Empty:
         {
             default:
-                string message = "Parser error, position: "; //+ to_string(current_lexeme.getPosition());
+                string message = "Parser error, position: "+ to_string(current_token.getPosition());
                 throw runtime_error(message);
         }
     }
@@ -594,92 +607,92 @@ void Parser::Run_Generator_program()
         }
         case Generator_program::Var:
         {
-            data.Polish_String.emplace_back(current_lexeme.getToken(), current_lexeme);
+            data.Polish_String.emplace_back(current_token.getToken(), current_token);
             break;
         }
         case Generator_program::Const:
         {
-            data.Polish_String.emplace_back(stoi(current_lexeme.getToken()), current_lexeme);
+            data.Polish_String.emplace_back(stoi(current_token.getToken()), current_token);
             break;
         }
         case Generator_program::In:
         {
-            data.Polish_String.emplace_back(PS_Operation::In, current_lexeme);
+            data.Polish_String.emplace_back(PS_Operation::In, current_token);
             break;
         }
         case Generator_program::Out:
         {
-            data.Polish_String.emplace_back(PS_Operation::Out, current_lexeme);
+            data.Polish_String.emplace_back(PS_Operation::Out, current_token);
             break;
         }
         case Generator_program::Mass:
         {
-            data.Polish_String.emplace_back(PS_Operation::Mass, current_lexeme);
+            data.Polish_String.emplace_back(PS_Operation::Mass, current_token);
             break;
         }
         case Generator_program::Plus:
         {
-            data.Polish_String.emplace_back(PS_Operation::Plus, current_lexeme);
+            data.Polish_String.emplace_back(PS_Operation::Plus, current_token);
             break;
         }
         case Generator_program::Minus:
         {
-            data.Polish_String.emplace_back(PS_Operation::Minus, current_lexeme);
+            data.Polish_String.emplace_back(PS_Operation::Minus, current_token);
             break;
         }
         case Generator_program::Div:
         {
-            data.Polish_String.emplace_back(PS_Operation::Div, current_lexeme);
+            data.Polish_String.emplace_back(PS_Operation::Div, current_token);
             break;
         }
         case Generator_program::Mul:
         {
-            data.Polish_String.emplace_back(PS_Operation::Mul, current_lexeme);
+            data.Polish_String.emplace_back(PS_Operation::Mul, current_token);
             break;
         }
         case Generator_program::Ass:
         {
-            data.Polish_String.emplace_back(PS_Operation::Ass, current_lexeme);
+            data.Polish_String.emplace_back(PS_Operation::Ass, current_token);
             break;
         }
         case Generator_program::Less:
         {
-            data.Polish_String.emplace_back(PS_Operation::Less, current_lexeme);
+            data.Polish_String.emplace_back(PS_Operation::Less, current_token);
             break;
         }
         case Generator_program::Greater:
         {
-            data.Polish_String.emplace_back(PS_Operation::Greater, current_lexeme);
+            data.Polish_String.emplace_back(PS_Operation::Greater, current_token);
             break;
         }
         case Generator_program::Equal:
         {
-            data.Polish_String.emplace_back(PS_Operation::Equal, current_lexeme);
+            data.Polish_String.emplace_back(PS_Operation::Equal, current_token);
             break;
         }
         case Generator_program::NotEqual:
         {
-            data.Polish_String.emplace_back(PS_Operation::NotEqual, current_lexeme);
+            data.Polish_String.emplace_back(PS_Operation::NotEqual, current_token);
             break;
         }
         case Generator_program::I:
         {
-            data.Polish_String.emplace_back(PS_Operation::I, current_lexeme);
+            data.Polish_String.emplace_back(PS_Operation::I, current_token);
             break;
         }
         case Generator_program::Program1:
         {
             Labels.push(data.Polish_String.size());
-            data.Polish_String.emplace_back(0, current_lexeme);
-            data.Polish_String.emplace_back(PS_Operation::F, current_lexeme);
+            data.Polish_String.emplace_back(0, current_token);
+            data.Polish_String.emplace_back(PS_Operation::F, current_token);
             break;
         }
         case Generator_program::Program2:
         {
             int place = Labels.top();
             Labels.pop();
-            data.Polish_String.emplace_back(0, current_lexeme);
-            data.Polish_String.emplace_back(PS_Operation::T, current_lexeme);
+            data.Polish_String.emplace_back(0, current_token);
+            data.Polish_String.emplace_back(PS_Operation::T, current_token);
             data.Polish_String[place].num = data.Polish_String.size();
             break;
         }
@@ -699,9 +712,9 @@ void Parser::Run_Generator_program()
         {
             int place = Labels.top();
             Labels.pop();
-            data.Polish_String.emplace_back(Labels.top(), current_lexeme);
+            data.Polish_String.emplace_back(Labels.top(), current_token);
             Labels.pop();
-            data.Polish_String.emplace_back(PS_Operation::T, current_lexeme);
+            data.Polish_String.emplace_back(PS_Operation::T, current_token);
             data.Polish_String[place].num = data.Polish_String.size();
             break;
         }
@@ -717,41 +730,42 @@ void Parser::Run_Generator_program()
         }
         case Generator_program::Program8:
         {
-            if(data.Mass_Map.count(current_lexeme.getToken()))
+            if(data.Mass_Map.count(current_token.getToken()))
             {
-                string message = "A Array with the same name already exists, rename the Array, position: "; //+ to_string(current_lexeme.getPosition());
+                string message = "A Array with the same name already exists, rename the Array, position: "+ to_string(current_token.getPosition());
                 throw runtime_error(message);
             }
 
             if (current_map == Maps::Mass)
             {
-                current_var_name = current_lexeme.getToken();
+                current_var_name = current_token.getToken();
             }
+            data.Polish_String.emplace_back(current_token.getToken(), current_token);
             break;
         }
         case Generator_program::Program9:
         {
-            data.Mass_Map.insert({current_var_name, vector<int>(stoi(current_lexeme.getToken()))});
+            data.Mass_Map.insert({current_var_name, vector<int>(stoi(current_token.getToken()))});
             break;
         }
         case Generator_program::Program10:
         {
-            if (current_map == Maps::Var)
-            {
-                if (data.Var_Map.count(current_lexeme.getToken()))
+            current_map = Maps::Var;
+            data.Polish_String.emplace_back(current_token.getToken(), current_token);
+
+                if (data.Var_Map.count(current_token.getToken()))
                 {
                     break;
                 }
                 else
                 {
-                    data.Var_Map.insert({current_lexeme.getToken(), -1});
+                    data.Var_Map.insert({current_token.getToken(), -1});
                 }
-            }
             break;
         }
         default:
         {
-            string message = "Parser error, position: "; //+ to_string(current_lexeme.getPosition());
+            string message = "Parser error, position: "+ to_string(current_token.getPosition());
             throw runtime_error(message);
         }
     }
@@ -762,5 +776,53 @@ void Parser::Run()
     Automate_Stack.emplace(State::A);
     Automate_Generator.push(Generator_program::Empty);
     current_map = Maps::Var;
-    int current_lexeme_index = 0;
+    int current_token_index = 0;
+    current_token = input_data[current_token_index];
+
+    while (!Automate_Stack.empty() && !Automate_Generator.empty())
+    {
+        Stack_item current_stack_item = Automate_Stack.top();
+        Automate_Stack.pop();
+        current_state = current_stack_item.state;
+        current_program = Automate_Generator.top();
+        Automate_Generator.pop();
+
+        Run_Generator_program();
+
+        if (current_token.getType() != End)
+        {
+            if (current_stack_item.Is_terminal)
+            {
+                if(current_stack_item.token == current_token.getType())
+                {
+                    current_token_index++;
+                    current_token = input_data[current_token_index];
+                }
+                else
+                {
+                    string message = "Parser error, unexpected token: "+ to_string(current_token.getPosition());
+                    throw runtime_error(message);
+                }
+            }
+            else
+            {
+                Next_State();
+            }
+        }
+    }
+
+    if(current_token.getType() != TokenType::End)
+    {
+        string message = "Parser error, unrecognized token: "+ to_string(current_token.getPosition());
+        throw runtime_error(message);
+    }
+}
+
+Parser::Parser(vector<Token> List) : current_token(current_token)
+{
+    input_data = List;
+}
+
+Parser::Data Parser::Get_data() {
+    return data;
 }
