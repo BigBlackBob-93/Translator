@@ -63,6 +63,7 @@ public:
         }
     };
 
+
     struct Data{
         vector <PS_Element> Polish_String;
         unordered_map<string, int> Var_Map;

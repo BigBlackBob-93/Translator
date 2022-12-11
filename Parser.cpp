@@ -377,12 +377,12 @@ void Parser::Next_State()
                     Automate_Stack.emplace(TokenType::Var);
                     Automate_Stack.emplace(TokenType::Mass);
 
-                    Automate_Generator.emplace(Generator_program::Empty);
                     Automate_Generator.emplace(Generator_program::Mass);
+                    Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Empty);
                     Automate_Generator.emplace(Generator_program::Program9);
                     Automate_Generator.emplace(Generator_program::Empty);
                     Automate_Generator.emplace(Generator_program::Program8);
-                    Automate_Generator.emplace(Generator_program::Empty);
                     Automate_Generator.emplace(Generator_program::Program7);
                     break;
                 }
@@ -468,8 +468,8 @@ void Parser::Next_State()
                     Automate_Generator.emplace(Generator_program::Empty);
                     Automate_Generator.emplace(Generator_program::Out);
                     Automate_Generator.emplace(Generator_program::Empty);
-                    Automate_Generator.emplace(Generator_program::Var);
                     Automate_Generator.emplace(Generator_program::Empty);
+                    Automate_Generator.emplace(Generator_program::Var);
                     Automate_Generator.emplace(Generator_program::Empty);
                     Automate_Generator.emplace(Generator_program::Empty);
                     break;
@@ -691,6 +691,7 @@ void Parser::Run_Generator_program()
         {
             int place = Labels.top();
             Labels.pop();
+            Labels.push(data.Polish_String.size());
             data.Polish_String.emplace_back(0, current_token);
             data.Polish_String.emplace_back(PS_Operation::T, current_token);
             data.Polish_String[place].num = data.Polish_String.size();
@@ -826,3 +827,7 @@ Parser::Parser(vector<Token> List) : current_token(current_token)
 Parser::Data Parser::Get_data() {
     return data;
 }
+
+
+
+
