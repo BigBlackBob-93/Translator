@@ -313,7 +313,7 @@ void Parser::Next_State()
                 }
                 case TokenType::Const:
                 {
-                    Automate_Stack.emplace(TokenType::Var);
+                    Automate_Stack.emplace(TokenType::Const);
 
                     Automate_Generator.emplace(Generator_program::Const);
                     break;
