@@ -24,7 +24,7 @@ int main()
 
     Parser test(List); //creating an instance of a class Parser
     test.Run(); //calling a function that generates OPS
-
+    Interpreter go(test.Get_data());
 
     //You can use method Get_data() to get specified element of Polish string (example: test.Get_data().Polish_String[0])
     //at the Polish string element you have 5 different characteristics:
