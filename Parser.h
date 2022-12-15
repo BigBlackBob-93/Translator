@@ -74,15 +74,17 @@ public:
     void Run();
     Parser(vector <Token> List);
 
-private:
-    void Next_State();
-    void Run_Generator_program();
-
     enum class Maps
     {
         Mass,
         Var
     };
+
+private:
+    void Next_State();
+    void Run_Generator_program();
+
+
 
     enum class State
     {
