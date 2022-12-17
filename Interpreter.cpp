@@ -56,7 +56,6 @@ void Interpreter::ChangeToConst(int &result) {
 }
 
 void Interpreter::in() {
-    cout << "\nIN";
     if(not_stack.back().PS_Element_Type != Parser::PS_Type::Var) Shit(2);
     cout << "\n Value: ";
     int result;
@@ -65,13 +64,11 @@ void Interpreter::in() {
 }
 
 void Interpreter::out() {
-    cout << "\nOUT";
-    cout << endl << this->VarOrConst();
+    cout << "\n Out: " << this->VarOrConst();
     not_stack.pop_back();
 }
 
 void Interpreter::solve(Parser::PS_Operation type) {
-    cout << "\nSOLVE";
     int result = 0;
     for (int i = 0; i < 2; ++i) {
         switch (type) {
@@ -96,7 +93,6 @@ void Interpreter::solve(Parser::PS_Operation type) {
 }
 
 void Interpreter::ass() {
-    cout << "\nASS";
     int result = this->VarOrConst();
     not_stack.pop_back();
     string name = not_stack.back().PS_Element_Name;
@@ -123,7 +119,6 @@ int Interpreter::TakeMassValue() {
 }
 
 void Interpreter::indexing() {
-    cout << "\nINDEXING";
     this->id = this->VarOrConst();
     not_stack.pop_back();
     this->key = not_stack.back().PS_Element_Name;
@@ -137,7 +132,6 @@ void Interpreter::indexing() {
 }
 
 void Interpreter::compare(Parser::PS_Operation type) {
-    cout << "\nCOMPARE";
     int right = this->VarOrConst();
     not_stack.pop_back();
     int left = this->VarOrConst();
@@ -152,13 +146,11 @@ void Interpreter::compare(Parser::PS_Operation type) {
 }
 
 void Interpreter::t_transition() {
-    cout << "\nT";
     this->index = not_stack.back().num - 1;
     not_stack.pop_back();
 }
 
 void Interpreter::f_transition() {
-    cout << "\nF";
     int num = not_stack.back().num;
     not_stack.pop_back();
     int flag = not_stack.back().num;
@@ -173,7 +165,7 @@ void Interpreter::f_transition() {
 
 string ShitList[] = { "PS_Type = ???", "indexing: array is out of bounds", "in: PS_Type != Const", "transition: flag > 1", "ass: Const = Const"};
 void Shit(int number) {
-    cout << "\nERROR -- Interpreter: " << ShitList[number] << endl;
+    cout << "\nERROR -- Interpreter: " << ShitList[number];
     exit(0);
 }
 
