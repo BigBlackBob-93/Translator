@@ -3,26 +3,32 @@
 #include "Parser.h"
 
 class Interpreter{
+    Parser *ptr;
     vector <Parser::PS_Element> not_stack;
+    int VarOrConst();
+    void ChangeToConst(int &result);
+    string key;
+    int id;
 public:
+
     int index;
-    Parser::Data *data;
-    explicit Interpreter(Parser::Data Data);
+    Interpreter(Parser &Data);
     void Interpretation();
     void ChooseOperation(Parser::PS_Element &operation);
+    int TakeMassValue();
+    void ChangeMassValue(int& value);
+
+    void in();
+    void out();
+    void solve(Parser::PS_Operation type);
+    void ass();
+    void indexing();
+    void compare(Parser::PS_Operation type);
+    void t_transition();
+    void f_transition();
 };
 
-int VarOrConst(vector <Parser::PS_Element> &not_stack, Parser::Data *data);
-void ChangeToConst(vector <Parser::PS_Element> &not_stack, int &result);
 void Shit(int number);
 
-void in(vector <Parser::PS_Element> &not_stack, Parser::Data *data);
-void out(vector <Parser::PS_Element> &not_stack, Parser::Data *data);
-void solve(vector <Parser::PS_Element> &not_stack, Parser::Data *data, Parser::PS_Operation type);
-void ass(vector <Parser::PS_Element> &not_stack, Parser::Data *data);
-void compare(vector <Parser::PS_Element> &not_stack, Parser::Data *data, Parser::PS_Operation type);
-void t_transition(vector <Parser::PS_Element> &not_stack, Parser::Data *data, int &index);
-void f_transition(vector <Parser::PS_Element> &not_stack, Parser::Data *data, int &index);
-void indexing(vector <Parser::PS_Element> &not_stack, Parser::Data *data);
 
 #endif //TRANSLATOR_INTERPRETER_H

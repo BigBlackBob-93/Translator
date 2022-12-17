@@ -1,14 +1,13 @@
 #include "Interpreter.h"
-#define OPS data->Polish_String
-#define VMap data->Var_Map
-#define MMap data->Mass_Map
+#define OPS ptr->data.Polish_String
 
-Interpreter::Interpreter(Parser::Data Data) {
-    this->data = &Data;
+Interpreter::Interpreter(Parser &Data) {
+    this->ptr = &Data;
     index = 0;
+    id = 0;
+    key = " ";
     this->Interpretation();
 }
-
 void Interpreter::Interpretation() {
     for (; index < OPS.size(); ++index) {
         switch (OPS[index].PS_Element_Type) {
@@ -19,130 +18,163 @@ void Interpreter::Interpretation() {
                 not_stack.push_back(OPS[index]);
                 break;
             case Parser::PS_Type::Operation:
-                ChooseOperation(OPS[index]);
+                this->ChooseOperation(OPS[index]);
                 break;
             default: Shit(0);
         }
     }
 }
-
 void Interpreter::ChooseOperation(Parser::PS_Element &operation) {
     switch (operation.PS_Element_Operation) {
-        case Parser::PS_Operation::In: in(not_stack, data); break;
-        case Parser::PS_Operation::Out: out(not_stack, data); break;
-        case Parser::PS_Operation::Plus: solve(not_stack, data, Parser::PS_Operation::Plus); break;
-        case Parser::PS_Operation::Minus: solve(not_stack, data, Parser::PS_Operation::Minus); break;
-        case Parser::PS_Operation::Div: solve(not_stack, data, Parser::PS_Operation::Div); break;
-        case Parser::PS_Operation::Mul: solve(not_stack, data, Parser::PS_Operation::Mul); break;
-        case Parser::PS_Operation::Ass: ass(not_stack, data); break;
-        case Parser::PS_Operation::Less: compare(not_stack, data, Parser::PS_Operation::Less); break;
-        case Parser::PS_Operation::Greater: compare(not_stack, data, Parser::PS_Operation::Greater); break;
-        case Parser::PS_Operation::Equal: compare(not_stack, data, Parser::PS_Operation::Equal); break;
-        case Parser::PS_Operation::NotEqual: compare(not_stack, data, Parser::PS_Operation::NotEqual); break;
-        case Parser::PS_Operation::T: t_transition(not_stack, data, index); break;
-        case Parser::PS_Operation::F: f_transition(not_stack, data, index); break;
-        case Parser::PS_Operation::I: indexing(not_stack, data); break;
+        case Parser::PS_Operation::In: this->in(); break;
+        case Parser::PS_Operation::Out: this->out(); break;
+        case Parser::PS_Operation::Plus: this->solve(Parser::PS_Operation::Plus); break;
+        case Parser::PS_Operation::Minus: this->solve(Parser::PS_Operation::Minus); break;
+        case Parser::PS_Operation::Div: this->solve(Parser::PS_Operation::Div); break;
+        case Parser::PS_Operation::Mul: this->solve(Parser::PS_Operation::Mul); break;
+        case Parser::PS_Operation::Ass: this->ass(); break;
+        case Parser::PS_Operation::Less: this->compare(Parser::PS_Operation::Less); break;
+        case Parser::PS_Operation::Greater: this->compare(Parser::PS_Operation::Greater); break;
+        case Parser::PS_Operation::Equal: this->compare(Parser::PS_Operation::Equal); break;
+        case Parser::PS_Operation::NotEqual: this->compare(Parser::PS_Operation::NotEqual); break;
+        case Parser::PS_Operation::I: this->indexing(); break;
+        case Parser::PS_Operation::T: this->t_transition(); break;
+        case Parser::PS_Operation::F: this->f_transition(); break;
         case Parser::PS_Operation::Mass: not_stack.pop_back(); break;
         default: Shit(0);
     }
 }
 
-int VarOrConst(vector<Parser::PS_Element> &not_stack, Parser::Data *data) {
-    if (not_stack.back().PS_Element_Type == Parser::PS_Type::Var) return VMap[not_stack.back().PS_Element_Name];
+int Interpreter::VarOrConst() {
+    if (not_stack.back().PS_Element_Type == Parser::PS_Type::Var) return ptr->data.Var_Map[not_stack.back().PS_Element_Name];
     else return not_stack.back().num;
 }
 
-void ChangeToConst(vector<Parser::PS_Element> &not_stack, int &result) {
+void Interpreter::ChangeToConst(int &result) {
     not_stack.back().PS_Element_Type = Parser::PS_Type::Const;
     not_stack.back().num = result;
 }
 
-string ShitList[] = { "PS_Type = ???", "indexing: array is out of bounds", "in: PS_Type != Const", "transition: flag > 1"};
-void Shit(int number) {
-    cout << "\nERROR -- Interpreter: " << ShitList[number] << endl;
-    exit(0);
-}
-
-void in(vector <Parser::PS_Element> &not_stack, Parser::Data *data) {
+void Interpreter::in() {
+    cout << "\nIN";
     if(not_stack.back().PS_Element_Type != Parser::PS_Type::Var) Shit(2);
+    cout << "\n Value: ";
     int result;
     cin >> result;
-    ChangeToConst(not_stack, result);
+    this->ChangeToConst(result);
 }
 
-void out(vector <Parser::PS_Element> &not_stack, Parser::Data *data) {
-    cout << VarOrConst(not_stack, data);
+void Interpreter::out() {
+    cout << "\nOUT";
+    cout << endl << this->VarOrConst();
     not_stack.pop_back();
 }
 
-void solve(vector <Parser::PS_Element> &not_stack, Parser::Data *data, Parser::PS_Operation type) {
+void Interpreter::solve(Parser::PS_Operation type) {
+    cout << "\nSOLVE";
     int result = 0;
     for (int i = 0; i < 2; ++i) {
         switch (type) {
             case Parser::PS_Operation::Plus:
-                result += VarOrConst(not_stack, data);
+                result += this->VarOrConst();
                 break;
             case Parser::PS_Operation::Minus:
-                result = VarOrConst(not_stack, data) - result;
+                result = this->VarOrConst() - result;
                 break;
             case Parser::PS_Operation::Div:
-                if (i>0) result = VarOrConst(not_stack, data) / result;
-                else result = VarOrConst(not_stack, data);
+                if (i>0) result = this->VarOrConst() / result;
+                else result = this->VarOrConst();
                 break;
             case Parser::PS_Operation::Mul:
-                if (i>0) result *= VarOrConst(not_stack, data);
-                else result = VarOrConst(not_stack, data);
+                if (i>0) result *= this->VarOrConst();
+                else result = this->VarOrConst();
                 break;
         }
         if(i<1) not_stack.pop_back();
     }
-    ChangeToConst(not_stack, result);
+    this->ChangeToConst(result);
 }
 
-void ass(vector <Parser::PS_Element> &not_stack, Parser::Data *data) {
-    int result = VarOrConst(not_stack, data);
+void Interpreter::ass() {
+    cout << "\nASS";
+    int result = this->VarOrConst();
     not_stack.pop_back();
-    VMap[not_stack.back().PS_Element_Name] = result;
-    not_stack.pop_back();
-}
-
-void compare(vector <Parser::PS_Element> &not_stack, Parser::Data *data, Parser::PS_Operation type) {
-    int result = VarOrConst(not_stack, data);
-    not_stack.pop_back();
-    int res = 0;
-    switch (type) {
-        case Parser::PS_Operation::Less: if(VarOrConst(not_stack, data) < result) res = 1; break;
-        case Parser::PS_Operation::Greater: if(VarOrConst(not_stack, data) > result) res = 1; break;
-        case Parser::PS_Operation::Equal: if(VarOrConst(not_stack, data) == result) res = 1; break;
-        case Parser::PS_Operation::NotEqual: if(VarOrConst(not_stack, data) != result) res = 1; break;
+    string name = not_stack.back().PS_Element_Name;
+    switch (not_stack.back().PS_Element_Type) {
+        case Parser::PS_Type::Var:
+            ptr->data.Var_Map[name] = result;
+            break;
+        case Parser::PS_Type::Const:
+            if(name == key) this->ChangeMassValue(result);
+            else Shit(4);
+            this->key = " ";
+            this->id = 0;
+            break;
     }
-    ChangeToConst(not_stack, res);
-}
-
-void t_transition(vector <Parser::PS_Element> &not_stack, Parser::Data *data, int &index) {
-    index = not_stack.back().num - 1;
     not_stack.pop_back();
 }
 
-void f_transition(vector <Parser::PS_Element> &not_stack, Parser::Data *data, int &index) {
+void Interpreter::ChangeMassValue(int &value) {
+    ptr->data.Mass_Map[key][id] = value;
+}
+
+int Interpreter::TakeMassValue() {
+    return ptr->data.Mass_Map[key][id];
+}
+
+void Interpreter::indexing() {
+    cout << "\nINDEXING";
+    this->id = this->VarOrConst();
+    not_stack.pop_back();
+    this->key = not_stack.back().PS_Element_Name;
+    int result;
+    int size = ptr->data.Mass_Map[key].size();
+    if (id < size){
+        result = this->TakeMassValue();
+        this->ChangeToConst(result);
+    }
+    else Shit(1);
+}
+
+void Interpreter::compare(Parser::PS_Operation type) {
+    cout << "\nCOMPARE";
+    int right = this->VarOrConst();
+    not_stack.pop_back();
+    int left = this->VarOrConst();
+    int result = 0;
+    switch (type) {
+        case Parser::PS_Operation::Less: if(left < right) result = 1; break;
+        case Parser::PS_Operation::Greater: if(left > right) result = 1; break;
+        case Parser::PS_Operation::Equal: if(left == right) result = 1; break;
+        case Parser::PS_Operation::NotEqual: if(left != right) result = 1; break;
+    }
+    this->ChangeToConst(result);
+}
+
+void Interpreter::t_transition() {
+    cout << "\nT";
+    this->index = not_stack.back().num - 1;
+    not_stack.pop_back();
+}
+
+void Interpreter::f_transition() {
+    cout << "\nF";
     int num = not_stack.back().num;
     not_stack.pop_back();
     int flag = not_stack.back().num;
     not_stack.pop_back();
 
     switch (flag) {
-        case 0: index = num - 1; break;
+        case 0: this->index = num - 1; break;
         case 1: break;
         default: Shit(3);
     }
 }
 
-void indexing(vector <Parser::PS_Element> &not_stack, Parser::Data *data) {
-    int result = VarOrConst(not_stack, data);
-    not_stack.pop_back();
-    int size = MMap[not_stack.back().PS_Element_Name].size();
-    if (result < size) ChangeToConst(not_stack, result);
-    else Shit(1);
+string ShitList[] = { "PS_Type = ???", "indexing: array is out of bounds", "in: PS_Type != Const", "transition: flag > 1", "ass: Const = Const"};
+void Shit(int number) {
+    cout << "\nERROR -- Interpreter: " << ShitList[number] << endl;
+    exit(0);
 }
 
 

@@ -61,6 +61,13 @@ public:
             PS_Element_Operation = operation;
             position = T.getPosition();
         }
+        PS_Element(const PS_Element &other){
+            this->position = other.position;
+            this->PS_Element_Type = other.PS_Element_Type;
+            this->num = other.num;
+            this->PS_Element_Operation = other.PS_Element_Operation;
+            this->PS_Element_Name = other.PS_Element_Name;
+        }
     };
 
 
@@ -153,9 +160,11 @@ private:
     stack<Stack_item> Automate_Stack;
     stack<Generator_program> Automate_Generator;
     stack<int> Labels;
-    Data data;
+
 
     vector<Token> input_data;
+public:
+    Data data;
 };
 
 
