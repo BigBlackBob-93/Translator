@@ -15,8 +15,9 @@ public:
     Interpreter(Parser &Data);
     void Interpretation();
     void ChooseOperation(Parser::PS_Element &operation);
-    int TakeMassValue();
+    int TakeMassValue(string &s, int &c);
     void ChangeMassValue(int& value);
+    void ResetMass();
 
     void in();
     void out();
