@@ -4,8 +4,7 @@
 Interpreter::Interpreter(Parser &Data) {
     this->ptr = &Data;
     index = 0;
-    id = 0;
-    key = " ";
+    this->ResetMass();
     this->Interpretation();
 }
 void Interpreter::Interpretation() {
@@ -57,15 +56,16 @@ void Interpreter::ChangeToConst(int &result) {
 
 void Interpreter::in() {
     if(not_stack.back().PS_Element_Type != Parser::PS_Type::Var) Shit(2);
-    cout << "\n Value: ";
+    cout << endl << "Value: ";
     int result;
     cin >> result;
     this->ChangeToConst(result);
 }
 
 void Interpreter::out() {
-    cout << "\n Out: " << this->VarOrConst();
+    cout << endl << "Out: " << this->VarOrConst();
     not_stack.pop_back();
+    this->ResetMass();
 }
 
 void Interpreter::solve(Parser::PS_Operation type) {
@@ -103,32 +103,50 @@ void Interpreter::ass() {
         case Parser::PS_Type::Const:
             if(name == key) this->ChangeMassValue(result);
             else Shit(4);
-            this->key = " ";
-            this->id = 0;
             break;
     }
     not_stack.pop_back();
+    this->ResetMass();
 }
 
 void Interpreter::ChangeMassValue(int &value) {
     ptr->data.Mass_Map[key][id] = value;
 }
 
-int Interpreter::TakeMassValue() {
-    return ptr->data.Mass_Map[key][id];
+int Interpreter::TakeMassValue(string& s, int& c) {
+    return ptr->data.Mass_Map[s][c];
+}
+
+void Interpreter::ResetMass() {
+    this->key = "empty";
+    this->id = 0;
 }
 
 void Interpreter::indexing() {
-    this->id = this->VarOrConst();
-    not_stack.pop_back();
-    this->key = not_stack.back().PS_Element_Name;
-    int result;
-    int size = ptr->data.Mass_Map[key].size();
-    if (id < size){
-        result = this->TakeMassValue();
-        this->ChangeToConst(result);
+    bool flag = this->key == "empty";
+    if (!flag){
+        int t = this->VarOrConst();
+        not_stack.pop_back();
+        string t2 = not_stack.back().PS_Element_Name;
+        int result = 0;
+        if (t < ptr->data.Mass_Map[t2].size()){
+            result = this->TakeMassValue(t2, t);
+            this->ChangeToConst(result);
+        }
+        else Shit(1);
     }
-    else Shit(1);
+    else{
+        this->id = this->VarOrConst();
+        not_stack.pop_back();
+        this->key = not_stack.back().PS_Element_Name;
+        int result = 0;
+        int size = ptr->data.Mass_Map[key].size();
+        if (id < size){
+            result = this->TakeMassValue(key, id);
+            this->ChangeToConst(result);
+        }
+        else Shit(1);
+    }
 }
 
 void Interpreter::compare(Parser::PS_Operation type) {
@@ -162,6 +180,8 @@ void Interpreter::f_transition() {
         default: Shit(3);
     }
 }
+
+
 
 string ShitList[] = { "PS_Type = ???", "indexing: array is out of bounds", "in: PS_Type != Const", "transition: flag > 1", "ass: Const = Const"};
 void Shit(int number) {

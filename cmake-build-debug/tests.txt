@@ -2,3 +2,4 @@ begin x=4; y=6; b=3; x = x*(y+b); out(x); end
 begin x=in(y); if (x<5) then {x=0;} else {x=2;} out(x); end
 begin mass A[4]; A[2] = in(x); out(A[2]); end
 begin x=3; mass A[2]; x=A[0]; if (x>0) then {while (x<3) do {x=x+1;}} else {x=10;} out(x); end
+begin mass A[3]; i = 0; while(i < 3) do {A[i] = in(y); i = i+1;} i = 1; max = 0; while(i < 3) do { if(A[i-1]>A[i]) then {max = A[i]; A[i] = A[i-1]; A[i-1] = max; i = 1;} else {i=i+1;}}i = 0; while(i < 3) do {out(A[i]); i = i+1;} end
