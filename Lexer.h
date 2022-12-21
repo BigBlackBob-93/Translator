@@ -56,6 +56,7 @@ public:
     Token(string& token, int& position);
     [[nodiscard]] const string &getToken() const;
     [[nodiscard]] TokenType getType() const;
+    int getPosition() const;
     void GetInfo();
     bool DefineToken(SymbolType& symbol_type);
     bool DefineOperationType();

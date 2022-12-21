@@ -44,15 +44,15 @@ map <string, TokenType> Token :: OperationType{
 const string &Token::getToken() const {
     return token;
 }
-
 TokenType Token::getType() const {
     return type;
 }
-
-void Token :: GetInfo() {
-    cout << " token: " << token << " type: " << type;
+int Token::getPosition() const {
+    return position;
 }
-
+void Token :: GetInfo() {
+    cout << " token: " << token << " type: " << type << " position: " << position;
+}
 bool Token :: DefineToken(SymbolType& symbol_type) {
     switch (symbol_type) {
         case Digit: this->type = Const; return true;

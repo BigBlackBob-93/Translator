@@ -1,21 +1,24 @@
 #include "Lexer.h"
+#include "Parser.h"
+#include "Interpreter.h"
+#include <fstream>
+
 int main()
 {
-    // enter the code
     string code;
-    cout << "Enter your code: ";
-    getline(cin, code);
-    Lexer t(code);
-
-    // submit the code for lexical analysis -> you will have a vector of tokens
-    vector<Token>List = t.Analysis();
-    for(int i =0; i < List.size(); i++){
-        cout << endl;
-        List[i].GetInfo();
+    ifstream file("tests.txt");
+    if (file.is_open())
+    {
+        while (getline(file, code))
+        {
+            cout << "\nCode: " << code;
+            Lexer program(code);
+            vector<Token>List = program.Analysis();
+            Parser ops(List);
+            ops.Run();
+            Interpreter play(ops);
+        }
     }
-
-    //you can use token methods to get information about it
-    // example: List[0].getType(); List[0].getToken();
-
+    file.close();
     return 0;
 }
